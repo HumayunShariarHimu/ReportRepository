@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Repository</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+    body {
+        background: #000;
+        margin: 0;
+        font-family: "Courier New", monospace;
+        color: #00ff9f;
+        padding: 20px;
+        overflow-x: hidden;
+    }
+
+    /* Disable select, drag */
+    * {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* Hacker Glitch Title */
+    .title {
+        font-size: 38px;
+        text-align: center;
+        margin-top: 20px;
+        color: #00ff9f;
+        text-shadow: 0 0 10px #00ff9f, 0 0 20px #00ffaa, 0 0 40px #00ffaa;
+        animation: glitch 1s infinite;
+    }
+
+    @keyframes glitch {
+        0% { text-shadow: 2px 0 red, -2px 0 cyan; }
+        20% { text-shadow: -2px 0 red, 2px 0 cyan; }
+        40% { text-shadow: 2px 0 cyan, -2px 0 red; }
+        60% { text-shadow: -2px 0 cyan, 2px 0 red; }
+        100% { text-shadow: 0 0 10px #00ff9f; }
+    }
+
+    .btn {
+        display: block;
+        margin: 20px auto;
+        background: transparent;
+        border: 2px solid #00ff9f;
+        padding: 12px 22px;
+        font-size: 18px;
+        color: #00ff9f;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: 0.3s;
+        text-shadow: 0 0 10px #00ff9f;
+    }
+    .btn:hover {
+        background: #00ff9f;
+        color: #000;
+        box-shadow: 0 0 20px #00ff9f;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        background: rgba(0, 255, 159, 0.05);
+        box-shadow: 0 0 20px #00ff9f55;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #00ff9f55;
+        text-align: left;
+    }
+    th {
+        background: rgba(0, 255, 159, 0.15);
+        color: #00ff9f;
+        text-shadow: 0 0 5px #00ff9f;
+        font-weight: bold;
+    }
+    tr:hover {
+        background: rgba(0, 255, 159, 0.08);
+    }
+
+    #loading {
+        text-align: center;
+        font-size: 18px;
+        color: #00ff9f;
+        margin-top: 10px;
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<h1 class="title">REPORT REPOSITORY</h1>
+
+<button class="btn" onclick="loadXLS()">Load Reported Database</button>
+
+<div id="loading">Loading...</div>
+
+<div id="table-container"></div>
+
+<script>
+// --------------------------
+//   FULL PROTECTION SYSTEM
+// --------------------------
+
+// Disable right-click
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+// Disable copy
+document.addEventListener("copy", e => e.preventDefault());
+
+// Disable inspect shortcut keys
+document.addEventListener("keydown", (e) => {
+    if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.ctrlKey && e.shiftKey && e.key === "C") ||
+        (e.ctrlKey && e.shiftKey && e.key === "J") ||
+        (e.ctrlKey && e.key === "U")
+    ) e.preventDefault();
+});
+
+// Safe DevTools Detector (does NOT break UI)
+(function() {
+    let threshold = 160;
+    setInterval(() => {
+        if (window.outerWidth - window.innerWidth > threshold ||
+            window.outerHeight - window.innerHeight > threshold) {
+            alert("⚠ Developer Tools Detected!");
+        }
+    }, 1200);
+})();
+
+
+// --------------------------
+//     MAIN XLS FUNCTION
+// --------------------------
+async function loadXLS() {
+    document.getElementById("loading").style.display = "block";
+
+    const url = "https://raw.githubusercontent.com/HumayunShariarHimu/ReportRepository/main/data.xlsx";
+
+    try {
+        const response = await fetch(url);
+        const buffer = await response.arrayBuffer();
+
+        const workbook = XLSX.read(buffer, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+
+        document.getElementById("loading").style.display = "none";
+        renderTable(json);
+
+    } catch (err) {
+        alert("Error loading file: " + err);
+    }
+}
+
+function renderTable(data) {
+    let html = "<table><thead><tr>";
+
+    Object.keys(data[0]).forEach(h => {
+        html += `<th>${h}</th>`;
+    });
+
+    html += "</tr></thead><tbody>";
+
+    data.forEach(row => {
+        html += "<tr>";
+        Object.values(row).forEach(cell => {
+            html += `<td>${cell}</td>`;
+        });
+        html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+
+    document.getElementById("table-container").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
